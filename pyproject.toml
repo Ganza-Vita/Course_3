@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "course-3"
+name = "course"
 version = "0.1.0"
 description = ""
 authors = ["Bulat Galimov <bul.al@mail.ru>"]
@@ -7,7 +7,22 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.13"
+requests = "^2.32.3"
+pandas = "^2.2.3"
+openpyxl = "^3.1.5"
+python-dotenv = "^1.0.1"
 
+
+[tool.poetry.group.lint.dependencies]
+isort = "^5.13.2"
+mypy = "^1.13.0"
+black = "^24.10.0"
+flake8 = "^7.1.1"
+
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3.3"
+pytest-cov = "^6.0.0"
 
 [build-system]
 requires = ["poetry-core"]
