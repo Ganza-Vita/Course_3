@@ -14,17 +14,26 @@ def user_interface():
     vacancies_data = api.load_vacancies(search_keyword)
     vacancies = []
 
+    # Инициализируем уникальный идентификатор
+    id_counter = 1
+
     for data in vacancies_data:
         title = data.get('name')
         url = data.get('alternate_url')
         salary = data.get('salary')
 
-        salary_value = salary.get('from', 0) if salary is not None else 0
+        # Обработка зарплат
+        salary_value = salary['from'] if salary and 'from' in salary else (
+            salary['to'] if salary and 'to' in salary else 0)
         description = data.get('description', '')
 
-        vacancy = Vacancy(title, url, salary_value, description)
+        # Создаем экземпляр Vacancy
+        vacancy = Vacancy(title, url, salary_value, description, str(id_counter))
         file_manager.add_vacancy(vacancy)
         vacancies.append(vacancy)
+
+        # Увеличиваем счетчик уникальных идентификаторов
+        id_counter += 1
 
     # Сортировка по зарплате
     top_vacancies = sorted(vacancies, key=lambda v: v.salary, reverse=True)[:top_n]
@@ -40,7 +49,5 @@ def user_interface():
 
     print("Вакансии с ключевым словом в описании:")
     for v in matching_vacancies:
-        print(f"- {v['title']} (Ссылка: {v['url']}, Зарплата: {v['salary']})")
+        print(f"- {v.title} (Ссылка: {v.url}, Зарплата: {v.salary})")
 
-    # Записываем вакансия с ключевым словом в файл
-    file_manager.write_vacancies_to_file(matching_vacancies)

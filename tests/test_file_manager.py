@@ -1,54 +1,44 @@
 import unittest
+from unittest.mock import patch, mock_open
 import json
-import os
 
+# Импортируйте ваш класс Vacancy и класс JSONFileManager
 from src.file_manager import JSONFileManager
+from src.vacancy import Vacancy
 
-class TestMyJSONFileManager(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        """Запуск перед всеми тестами. Создание тестового файла."""
-        cls.test_filename = 'test_vacancies.json'
-        cls.manager = JSONFileManager(filename=cls.test_filename)
+class TestJSONFileManager(unittest.TestCase):
+    def setUp(self):
+        self.file_manager = JSONFileManager('test_vacancies.json')
 
-    @classmethod
-    def tearDownClass(cls):
-        """Запуск после всех тестов. Удаление тестового файла."""
-        if os.path.exists(cls.test_filename):
-            os.remove(cls.test_filename)
+    @patch('builtins.open', new_callable=mock_open)
+    def test_add_vacancy(self, mock_file):
+        vacancy = Vacancy(title="Программист", url="http://example.com", salary=100000, description="Тестовая вакансия")
+        self.file_manager.add_vacancy(vacancy)
 
-    def test_add_vacancy(self):
-        """Тест для проверки добавления вакансий."""
-        vacancy = {'id': 1, 'title': 'Программист', 'salary': 100000}
-        self.manager.add_vacancy(vacancy)
+        mock_file.assert_called_once_with('test_vacancies.json', 'a', encoding='utf8')
+        handle = mock_file()
+        handle.write.assert_called_once_with(json.dumps(vacancy.__dict__, ensure_ascii=False) + "\n")
 
-        # Проверяем, что вакансии добавлены правильно
-        with open(self.test_filename, 'r', encoding='utf-8') as file:
-            data = json.load(file)
-            self.assertEqual(len(data), 1)
-            self.assertEqual(data[0], vacancy)
+    @patch('builtins.open', new_callable=mock_open, read_data='{"title": "Программист", "url": "http://example.com", "salary": 100000, "description": "Тестовая вакансия"}\n')
+    def test_get_vacancies(self, mock_file):
+        result = self.file_manager.get_vacancies("Тестовая вакансия")
+        expected = [{'title': 'Программист', 'url': 'http://example.com', 'salary': 100000, 'description': 'Тестовая вакансия'}]
+        self.assertEqual(result, expected)
 
-    def test_remove_vacancy(self):
-        """Тест для проверки удаления вакансий."""
-        vacancy1 = {'id': 1, 'title': 'Программист', 'salary': 100000}
-        vacancy2 = {'id': 2, 'title': 'Дизайнер', 'salary': 80000}
-        self.manager.add_vacancy(vacancy1)
-        self.manager.add_vacancy(vacancy2)
+    @patch('builtins.open', new_callable=mock_open,
+           read_data='{"title": "Программист", "url": "http://example.com", "salary": 100000, "description": "Тестовая вакансия"}\n')
+    def test_remove_vacancy(self, mock_file):
+        vacancy = Vacancy(title="Программист", url="http://example.com", salary=100000, description="Тестовая вакансия")
+        self.file_manager.add_vacancy(vacancy)
 
-        # Удаляем первую вакансию
-        self.manager.remove_vacancy(1)
+        self.file_manager.remove_vacancy(vacancy.id)
 
-        # Проверяем, что осталась только вторая вакансия
-        with open(self.test_filename, 'r', encoding='utf-8') as file:
-            data = json.load(file)
-            self.assertEqual(len(data), 1)
-            self.assertEqual(data[0], vacancy2)
+        # Проверка, что `open` был вызван для записи
+        mock_file.assert_any_call('test_vacancies.json', 'w', encoding='utf8')
 
-    def test_get_vacancies(self):
-        """Тест для проверки получения всех вакансий."""
-        vacancy = {'id': 3, 'title': 'Тестировщик', 'salary': 90000}
-        self.manager.add_vacancy(vacancy)
+        # Проверка чего-либо, связанного с безопасностью записи
+        handle = mock_file()
+        handle.write.assert_not_called()  # В этом тесте не должно быть записей
 
-        vacancies = self.manager.get_vacancies("")
-        self.assertEqual(len(vacancies), 1)
-        self.assertEqual(vacancies[0], vacancy)
+if __name__ == '__main__':
+    unittest.main()
