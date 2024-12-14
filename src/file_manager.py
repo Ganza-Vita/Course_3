@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 import json
 
+
 class FileManagerBase(ABC):
     @abstractmethod
     def add_vacancy(self, vacancy):
@@ -18,8 +19,6 @@ class FileManagerBase(ABC):
         pass
 
 
-
-
 class JSONFileManager(FileManagerBase):
     def __init__(self, filename: str = 'vacancies.json'):
         self.filename = filename
@@ -27,8 +26,8 @@ class JSONFileManager(FileManagerBase):
     def add_vacancy(self, vacancy):
         """Добавление вакансии в JSON-файл"""
         try:
-            with open(self.filename, 'a') as file:
-                json_data = json.dumps(vacancy.__dict__)
+            with open(self.filename, 'w', encoding="utf8") as file:
+                json_data = json.dumps(vacancy.__dict__, ensure_ascii=False)
                 file.write(json_data + "\n")
         except Exception as e:
             print(f"Ошибка при добавлении вакансии: {e}")
@@ -48,8 +47,13 @@ class JSONFileManager(FileManagerBase):
             return []
 
     def remove_vacancy(self, vacancy_id):
-        """Заглушка для удаления вакансии из файла"""
-        pass
+        """Удаление вакансии из файла"""
+        vacancies = self.get_vacancies("")  # Получаем все вакансии
+        vacancies = [v for v in vacancies if v.get('id') != vacancy_id]  # Фильтруем удаляемую вакансию
+
+        with open(self.filename, 'w', encoding='utf8') as file:
+            for vacancy in vacancies:
+                file.write(json.dumps(vacancy, ensure_ascii=False) + "\n")
 
     def write_vacancies_to_file(self, vacancies, filename='output_vacancies.txt'):
         """Записывает вакансии в текстовый файл."""

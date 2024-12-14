@@ -7,7 +7,7 @@ def user_interface():
     api = HH()
     file_manager = JSONFileManager()
 
-    api.connect()
+    # api.connect()
     search_keyword = input("Введите поисковый запрос для вакансий: ")
     top_n = int(input("Введите количество вакансий по зарплате (N): "))
 

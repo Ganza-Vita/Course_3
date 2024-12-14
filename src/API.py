@@ -3,13 +3,9 @@ import requests
 
 
 class Parser(ABC):
-    @abstractmethod
-    def connect(self):
-        """Метод для подключения к API"""
-        pass
 
     @abstractmethod
-    def load_vacancies(self, keyword):
+    def load_vacancies(self, *args, **kwargs):
         """Метод для получения вакансий по ключевому слову"""
         pass
 
@@ -21,10 +17,6 @@ class HH(Parser):
         self.url = 'https://api.hh.ru/vacancies'
         self.headers = {'User-Agent': 'HH-User-Agent'}
         self.params = {'text': '', 'page': 0, 'per_page': 100}
-
-    def connect(self):
-        """ Метод для подключения (не требуется для данной API) """
-        return True
 
     def load_vacancies(self, keyword):
         """Загружает вакансии по ключевому слову"""
