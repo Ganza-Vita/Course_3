@@ -49,5 +49,5 @@ def user_interface():
 
     print("Вакансии с ключевым словом в описании:")
     for v in matching_vacancies:
-        print(f"- {v.title} (Ссылка: {v.url}, Зарплата: {v.salary})")
+        print(f"- {v['title']} (Ссылка: {v['url']}, Зарплата: {v['salary']})")
 
