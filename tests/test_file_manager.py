@@ -37,7 +37,7 @@ class TestJSONFileManager(unittest.TestCase):
     @patch('builtins.open', new_callable=mock_open,
            read_data='{"title": "Программист", "url": "http://example.com", "salary": 100000, "description": "Тестовая вакансия"}\n')
     def test_remove_vacancy(self, mock_file):
-        vacancy = Vacancy(title="Программист", url="http://example.com", salary=100000, description="Тестовая вакансия")
+        vacancy = Vacancy(vacancy_id="1", title="Программист", url="http://example.com", salary=100000, description="Тестовая вакансия")
         self.file_manager.add_vacancy(vacancy)
 
         self.file_manager.remove_vacancy(vacancy.id)
